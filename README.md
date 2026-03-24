@@ -7,7 +7,8 @@
 ## 1. Analiza potrzeb i wymagań klinicznych
 * **Identyfikacja problemu:** Opóźnienia w przesyłaniu danych EKG mogą prowadzić do błędnych diagnoz (np. przeoczenie migotania komór).
 * **Użytkownicy:** Lekarze, pielęgniarki na oddziałach intensywnej terapii.
-* **Analiza ryzyk:** * Utrata pakietów = dziury w wykresie.
+* **Analiza ryzyk:** 
+    * Utrata pakietów = dziury w wykresie.
     * Wysoki jitter = skaczący, nieczytelny wykres.
     * Przeciążenie serwera = brak monitoringu wielu pacjentów jednocześnie.
 
