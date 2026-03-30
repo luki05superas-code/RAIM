@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Monitoring parametrów w czasie rzeczywistym</title>
+
+    <!-- biblioteka do wykresów -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            margin: 30px;
+        }
+
+        h1 {
+            color: #1e3a5f;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            max-width: 1000px;
+        }
+
+        .metrics {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .metric-box {
+            background: #eef4fb;
+            padding: 15px;
+            border-radius: 10px;
+            min-width: 180px;
+        }
+
+        canvas {
+            max-width: 1000px;
+            max-height: 420px;
+        }
+    </style>
+</head>
+<body>
+    <h1>System monitoringu parametrów w czasie rzeczywistym</h1>
+
+    <div class="card">
+        <h2>Metryki</h2>
+        <div class="metrics">
+            <div class="metric-box">
+                <strong>Liczba próbek:</strong>
+                <div id="count">0</div>
+            </div>
+
+            <div class="metric-box">
+                <strong>Średnie opóźnienie:</strong>
+                <div id="avg_delay">0 s</div>
+            </div>
+
+            <div class="metric-box">
+                <strong>Maksymalne opóźnienie:</strong>
+                <div id="max_delay">0 s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Wykres wartości</h2>
+        <canvas id="liveChart"></canvas>
+    </div>
+
+    <script>
+        const ctx = document.getElementById("liveChart").getContext("2d");
+
+        const chart = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: [],
+                datasets: [{
+                    label: "Wartość sygnału",
+                    data: [],
+                    tension: 0.25,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                animation: false,
+                scales: {
+                    y: {
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+
+        async function fetchMeasurements() {
+            const response = await fetch("/api/measurements/latest");
+            return await response.json();
+        }
+
+        async function fetchMetrics() {
+            const response = await fetch("/api/metrics");
+            return await response.json();
+        }
+
+        async function updateDashboard() {
+            try {
+                const measurements = await fetchMeasurements();
+                const metrics = await fetchMetrics();
+
+                document.getElementById("count").textContent = metrics.count;
+                document.getElementById("avg_delay").textContent = metrics.avg_delay + " s";
+                document.getElementById("max_delay").textContent = metrics.max_delay + " s";
+
+                const labels = measurements.map((_, index) => index + 1);
+                const values = measurements.map(item => item.value);
+
+                chart.data.labels = labels;
+                chart.data.datasets[0].data = values;
+                chart.update();
+            } catch (error) {
+                console.error("Błąd aktualizacji:", error);
+            }
+        }
+
+        setInterval(updateDashboard, 1000);
+        updateDashboard();
+    </script>
+</body>
+</html>
