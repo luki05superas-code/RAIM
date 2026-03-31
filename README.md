@@ -11,7 +11,7 @@
 
 ---
 ## 1. Analiza potrzeb i wymagań klinicznych
-* **Identyfikacja problemu:** Opóźnienia w przesyłaniu danych EKG mogą prowadzić do błędnych diagnoz (np. przeoczenie migotania komór).
+* **Identyfikacja problemu:** Monitorowanie tętna (BPM) w czasie rzeczywistym jest kluczowe dla wykrywania nagłych zdarzeń, takich jak tachykardia, bradykardia czy asystolia. Opóźnienia w transmisji danych (latency) mogą opóźnić reakcję personelu medycznego o krytyczne sekundy.
 
 ### Użytkownicy systemu
 - lekarze,
@@ -22,7 +22,7 @@
 ### Analiza ryzyk
 - **Opóźnienia transmisji** – dane docierają za późno i nie odzwierciedlają aktualnego stanu pacjenta.
 - **Jitter** – nieregularność dostarczania próbek utrudnia płynną analizę sygnału.
-- **Utrata pakietów** – powoduje brak fragmentów przebiegu.
+- **Utrata pakietów** – może prowadzić do fałszywych alarmów o braku sygnału (asystolii), co wywołuje tzw. "alarm fatigue" (znieczulica na alarmy) u personelu.
 - **Przeciążenie systemu (backpressure)** – może prowadzić do spowolnienia odbioru danych i pogorszenia działania monitoringu.
 
 ---
