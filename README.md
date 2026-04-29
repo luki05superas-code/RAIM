@@ -59,6 +59,9 @@ W ramach etapu 1 zaimplementowano minimalną działającą wersję systemu zgodn
 - wizualizacja danych na wykresie w czasie rzeczywistym.
 
 ---
+## żałożenia etapy 2
+
+---
 
 ## 5. Struktura repozytorium
 
