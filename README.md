@@ -59,7 +59,12 @@ W ramach etapu 1 zaimplementowano minimalną działającą wersję systemu zgodn
 - wizualizacja danych na wykresie w czasie rzeczywistym.
 
 ---
-## żałożenia etapy 2
+## Założenia etapy 2
+- wysyłanie danych z symulacją opóżnienia,
+- wysyłanie danych z symulacją burst,
+- wysyłanie danych z symulacją reorderu danych,
+- pomiar latencji i jitter, wypisanie pomiaru w terminalu oraz zapisanie do pliku,
+- raport z pomiarów.
 
 ---
 
