@@ -173,7 +173,10 @@ System poprawnie rejestrował zaburzenia oraz umożliwiał analizę wpływu prob
 
 ## 8. Struktura repozytorium
 
-RAIM/
+## 8. Struktura repozytorium
+
+```text
+RAIM-MAIN/
 ├── assets/
 │   ├── jitter_delay.png
 │   ├── jitter_loss.png
@@ -184,7 +187,7 @@ RAIM/
 ├── data/
 │   └── patient_001.csv
 ├── static/
-│   └── index.html
+│   └── indeks.html
 ├── .gitignore
 ├── gen_burst.py
 ├── gen_delay.py
@@ -196,3 +199,4 @@ RAIM/
 ├── requirements.txt
 ├── server.py
 └── wykres.py
+```
