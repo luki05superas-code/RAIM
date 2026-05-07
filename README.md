@@ -173,8 +173,6 @@ System poprawnie rejestrował zaburzenia oraz umożliwiał analizę wpływu prob
 
 ## 8. Struktura repozytorium
 
-## 8. Struktura repozytorium
-
 ```text
 RAIM-MAIN/
 ├── assets/
