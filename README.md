@@ -10,7 +10,7 @@
 ![KIB](assets/kib.png)
 
 ---
-# 1. Analiza potrzeb i wymagań klinicznych
+## 1. Analiza potrzeb i wymagań klinicznych
 * **Identyfikacja problemu:** Monitorowanie tętna (BPM) w czasie rzeczywistym jest kluczowe dla wykrywania nagłych zdarzeń, takich jak tachykardia, bradykardia czy asystolia. Opóźnienia w transmisji danych (latency) mogą opóźnić reakcję personelu medycznego o krytyczne sekundy.
 
 ### Użytkownicy systemu
@@ -47,7 +47,7 @@ Frontend pobiera dane z API i przedstawia je na wykresie w czasie rzeczywistym.
 
 ---
 
-# 3. Etap 1 – działająca funkcjonalność minimalna (API-first)
+## 3. Etap 1 – działająca funkcjonalność minimalna (API-first)
 
 W ramach etapu 1 zaimplementowano minimalną działającą wersję systemu zgodnie z podejściem API-first.
 
@@ -59,7 +59,7 @@ W ramach etapu 1 zaimplementowano minimalną działającą wersję systemu zgodn
 - wizualizacja danych na wykresie w czasie rzeczywistym.
 
 ---
-# 4. Etap 2 – symulacja zaburzeń transmisji
+## 4. Etap 2 – symulacja zaburzeń transmisji
 
 Celem drugiego etapu projektu była analiza wpływu zaburzeń transmisji danych na działanie systemu monitoringu parametrów pacjenta w czasie rzeczywistym.
 
@@ -125,18 +125,18 @@ Plik:
 ![Wykres utraty pakietów](assets/jitter_loss.png)
 
 ---
-# 5. Instrumentacja i pomiary
+## 5. Instrumentacja i pomiary
 
 W systemie zaimplementowano mechanizmy monitorujące parametry transmisji danych.
 
-## Mierzone parametry
+### Mierzone parametry
 
 - latencja transmisji,
 - jitter,
 - liczba odebranych pomiarów,
 - maksymalne opóźnienie.
 
-## Logowanie danych
+### Logowanie danych
 
 Pomiary:
 - wyświetlane są w terminalu,
@@ -146,7 +146,7 @@ Backend oblicza opóźnienie transmisji na podstawie różnicy pomiędzy czasem 
 
 ---
 
-# 6. Raport z pomiarów
+## 6. Raport z pomiarów
 
 Podczas testów zaobserwowano, że:
 - scenariusz burst powoduje największe chwilowe opóźnienia,
@@ -157,15 +157,15 @@ Podczas testów zaobserwowano, że:
 System poprawnie rejestrował zaburzenia oraz umożliwiał analizę wpływu problemów transmisyjnych na monitoring pacjenta.
 
 ---
-# 7. Instrukcja uruchomienia
+## 7. Instrukcja uruchomienia
 
- ## Uruchomienie backendu komendą w terminalu: 
+ ### Uruchomienie backendu komendą w terminalu: 
   python server.py
 
- ## Uruchomienie generatora podstawowego komendą w terminalu: 
+ ### Uruchomienie generatora podstawowego komendą w terminalu: 
   python generator.py
 
- ## Uruchomienie scenariuszy zaburzeń:
+ ### Uruchomienie scenariuszy zaburzeń:
  - python gen_delay.py
  - python gen_burst.py
  - python gen_order.py
@@ -173,21 +173,26 @@ System poprawnie rejestrował zaburzenia oraz umożliwiał analizę wpływu prob
 
 ## 8. Struktura repozytorium
 
-RAIM-main/
+RAIM/
 ├── assets/
-├──
-│   ├── pg_logo.png
-│   └── kib.png
+│   ├── jitter_delay.png
+│   ├── jitter_loss.png
+│   ├── kib.png
+│   ├── latency_burst.png
+│   ├── latency_order.png
+│   └── pg_logo.png
 ├── data/
 │   └── patient_001.csv
 ├── static/
 │   └── index.html
-├── gen_delay.py
+├── .gitignore
 ├── gen_burst.py
-├── gen_order.py
+├── gen_delay.py
 ├── gen_loss.py
-├── measurement_report.csv
+├── gen_order.py
 ├── generator.py
-├── server.py
+├── measurement_report.csv
+├── README.md
 ├── requirements.txt
-└── README.md
+├── server.py
+└── wykres.py
