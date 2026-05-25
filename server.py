@@ -2,7 +2,16 @@ from flask import Flask, request, jsonify, send_from_directory #flask- tworzy se
 from flask_cors import CORS #komunikacja back z front
 import time
 import csv
+import os
+from dotenv import load_dotenv
+from supabase import create_client
 
+load_dotenv()
+
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 #tworzenie serwer
 app = Flask(__name__, static_folder="static")
 CORS(app)
@@ -38,11 +47,14 @@ def receive_measurement():
         "value": data.get("value"), #wartość tętna 
         "stream_time": stream_time, #kiedy generator wysłał
         "server_time": server_time, #kiedy serwer odebrał
-        "delay": current_delay, #opoznienei transmisji
+        "latency": current_delay, #opoznienei transmisji
         "jitter": jitter #jitter
     }
 
     measurements.append(item) #zapis do listy 
+
+    supabase.table("measurements").insert(item).execute()
+    
     #Logowanie pomiarów w konsoli
     print(f"[{item['patient_id']}] Tętno: {item['value']} | Opóźnienie: {current_delay}s | Jitter: {jitter}s")
     #Zapis pomiarów do pliku CSV
@@ -73,7 +85,7 @@ def get_metrics():
             "max_delay": 0
         })
 
-    delays = [m["delay"] for m in measurements]
+    delays = [m["latency"] for m in measurements]
 
     return jsonify({
         "count": len(measurements),
