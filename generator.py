@@ -49,8 +49,11 @@ import time
 import random
 import requests
 import os
+import asyncio
+import aiohttp
 from dotenv import load_dotenv
 from supabase import create_client
+
 
 API_URL = "http://127.0.0.1:5000/api/measurements"
 
@@ -68,33 +71,54 @@ def get_patients():
 
 
 def generate_heart_rate():
-    return random.randint(60, 80)
+    tentno= random.randint(60, 80)
+    while True:
+        tentno += random.choice([-1, 0, 1])
+        tentno = max(50, min(tentno, 100))
+        yield tentno
 
 
-def stream_data():
-    patients = get_patients()
+async def stream_data(session, patient_id):
+    hr_generator = generate_heart_rate()
+   
 
-    print(f"Pobrano pacjentów z Supabase: {len(patients)}")
+    
 
     while True:
-        for patient in patients:
-            now = time.time()
+        
+        now = time.time()
+        current_value = next(hr_generator)
 
-            payload = {
-                "patient_id": patient["patient_id"],
-                "source_time": now,
-                "value": generate_heart_rate(),
-                "stream_time": now
+        payload = {
+            "patient_id": patient_id,
+            "source_time": now,
+            "value": current_value,
+            "stream_time": now            
             }
 
-            try:
-                response = requests.post(API_URL, json=payload)
-                print("Wysłano:", payload, "Status:", response.status_code)
-            except Exception as e:
-                print("Błąd:", e)
+        try:
+             async with session.post(API_URL, json=payload) as response:
+                if response.status in (200, 201):
+                    print(f"[{patient_id}] Wysłano pomiar: {current_value} BPM")
+                else:                    
+                   print(f"[{patient_id}] Błąd serwera: {response.status}")
+                          
+        except Exception as e:
+                print(f"[{patient_id}] Błąd połączenia z API: {e}")
 
-        time.sleep(1)
+        await asyncio.sleep(1)
+
+async def main():
+  patients  = get_patients()
+  print(f"Pobrano pacjentów z Supabase: {len(patients)}")
+  async with aiohttp.ClientSession() as session:
+    tasks = []
+    for patient in patients:
+        patient_id = patient["patient_id"]
+        tasks.append(stream_data(session, patient_id))
+    await asyncio.gather(*tasks)
+        
 
 
 if __name__ == "__main__":
-    stream_data()
+    asyncio.run(main())

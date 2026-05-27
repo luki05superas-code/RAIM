@@ -345,7 +345,7 @@
     const PATIENTS_COUNT = 20;
     const PATIENTS_PER_ROOM = 5;
     let selectedPatient = "patient_001";
-    let latestMeasurements = [];
+    let latestMeasurements = {};
 
     function patientId(number) {
         return `patient_${String(number).padStart(3, "0")}`;
@@ -363,7 +363,7 @@
         if (!measurement) return { label: "Brak danych", cls: "empty" };
 
         const value = Number(measurement.value);
-        const delay = Number(measurement.delay || 0);
+        const delay = Number(measurement.latency || 0);
         const jitter = Number(measurement.jitter || 0);
 
         if (delay > 1.0 || jitter > 0.8 || value < 45 || value > 130) {
@@ -457,35 +457,30 @@
     }
 
     function updatePatientCards() {
-        const lastByPatient = {};
-        latestMeasurements.forEach(item => {
-            lastByPatient[item.patient_id] = item;
-        });
-
-        for (let i = 1; i <= PATIENTS_COUNT; i++) {
+       
+        let activeCount = 0;
+        for(let i =1; i<= PATIENTS_COUNT; i++){
             const id = patientId(i);
-            const item = lastByPatient[id];
+            const patientHistory = latestMeasurements[id] || [];
+            const item = patientHistory.length ? patientHistory[patientHistory.length - 1] : null;
             const status = statusForMeasurement(item);
+            if(item) {activeCount++;}
 
-            document.getElementById(`value-${id}`).innerHTML = `${item ? item.value.toFixed(0) : "--"} <small>BPM</small>`;
-            document.getElementById(`delay-${id}`).textContent = item ? item.delay : "--";
-            document.getElementById(`jitter-${id}`).textContent = item ? item.jitter : "--";
+            document.getElementById(`value-${id}`).innerHTML = `${item ? Number(item.value).toFixed(0) : "--"} <small>BPM</small>`;
+            document.getElementById(`delay-${id}`).textContent = item ? item.latency: "--";
+            document.getElementById(`jitter-${id}`).textContent = item ? item.jitter: "--";
 
-            const dot = document.getElementById(`dot-${id}`);
-            dot.className = `dot ${status.cls}`;
-
-            const statusLine = document.getElementById(`status-${id}`);
-            statusLine.className = `status-line ${status.cls}`;
-            statusLine.textContent = status.label;
+        const dot = document.getElementById(`dot-${id}`);
+        dot.className = `dot ${status.cls}`;
+        const statusLine = document.getElementById(`status-${id}`);
+        statusLine.className = `status-line ${status.cls}`;
+        statusLine.textContent = status.label;
         }
-
-        const active = Object.keys(lastByPatient).length;
-        document.getElementById("activePatients").textContent = `${active}/20`;
+        document.getElementById("activePatients").textContent = `${activeCount}/${PATIENTS_COUNT}`;
     }
 
     function updateChartsAndTable() {
-        const selectedData = latestMeasurements
-            .filter(item => item.patient_id === selectedPatient)
+        const selectedData = (latestMeasurements[selectedPatient] || [])
             .slice(-30);
 
         const labels = selectedData.map((_, index) => index + 1);
@@ -494,13 +489,13 @@
         valueChart.update();
 
         delayChart.data.labels = labels;
-        delayChart.data.datasets[0].data = selectedData.map(item => item.delay);
+        delayChart.data.datasets[0].data = selectedData.map(item => item.latency);
         delayChart.data.datasets[1].data = selectedData.map(item => item.jitter);
         delayChart.update();
 
         const rows = selectedData.slice(-8).reverse().map(item => {
             const time = item.server_time ? new Date(item.server_time * 1000).toLocaleTimeString() : "--";
-            return `<tr><td>${time}</td><td>${item.value}</td><td>${item.delay}</td><td>${item.jitter}</td></tr>`;
+            return `<tr><td>${time}</td><td>${item.value}</td><td>${item.latency}</td><td>${item.jitter}</td></tr>`;
         }).join("");
 
         document.getElementById("latestRows").innerHTML = rows || `<tr><td colspan="4">Brak danych dla wybranego pacjenta</td></tr>`;
