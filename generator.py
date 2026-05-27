@@ -81,13 +81,18 @@ def generate_heart_rate():
 async def stream_data(session, patient_id):
     hr_generator = generate_heart_rate()
    
-
+    last_run_time = time.time()
     
 
     while True:
         
         now = time.time()
         current_value = next(hr_generator)
+        target_interval = 1.0
+        
+        # Obliczenie DRIFT 
+        drift= now - last_run_time
+        last_run_time = now
 
         payload = {
             "patient_id": patient_id,
@@ -95,6 +100,7 @@ async def stream_data(session, patient_id):
             "value": current_value,
             "stream_time": now            
             }
+        print(f"[{patient_id}] Czas od ostatniego pomiaru {drift:.4f} s (Powinno być 1.0 s)")
 
         try:
              async with session.post(API_URL, json=payload) as response:
@@ -106,7 +112,12 @@ async def stream_data(session, patient_id):
         except Exception as e:
                 print(f"[{patient_id}] Błąd połączenia z API: {e}")
 
-        await asyncio.sleep(1)
+        execution_time = time.time() - now
+        sleep_time = target_interval - execution_time
+        if sleep_time < 0:
+            sleep_time = 0
+
+        await asyncio.sleep(sleep_time)
 
 async def main():
   patients  = get_patients()

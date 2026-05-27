@@ -171,6 +171,21 @@ System poprawnie rejestrował zaburzenia oraz umożliwiał analizę wpływu prob
  - python gen_order.py
  - python gen_loss.py
 
+ ---
+## 4. Etap 3 – współbieżność i analiza błędów
+
+Celem trzeciego etapu było wprowadzenie do systemy współbieżności
+
+## Założenia etapu 3
+- obsługa 20 pacjentów (20 wątków generujących dane)
+- analiza przeciążenia
+- demonstracja zjawiska współbieżności (drift)
+- implementacja mechanizmu kontroli
+- porównanie przed i po poprawce
+- 2 pytesty
+
+
+
 ## 8. Struktura repozytorium
 
 ```text
