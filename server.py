@@ -39,6 +39,10 @@ def receive_measurement():
     
     if data.get("value") is None:
         return jsonify({"error": "Brak wartości"}), 400
+    try:
+        float(data.get("value"))
+    except ValueError:
+        return jsonify({"error": "Wartość musi być liczbą"}), 400
     
     
 
