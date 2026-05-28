@@ -174,17 +174,34 @@ System poprawnie rejestrował zaburzenia oraz umożliwiał analizę wpływu prob
  ---
 ## 8. Etap 3 – współbieżność i analiza błędów
 
-Celem trzeciego etapu było wprowadzenie do systemy współbieżności
+Głównym celem trzeciego etapu było wprowadzenie do systemy współbieżności. Przetestowano stabilność systemu w warunkach skrajnego obciążenia bazy danych. Wdrożono mechanizmy kontroli.
 
 ## Założenia etapu 3
 - obsługa 20 pacjentów (20 wątków generujących dane)
 - analiza przeciążenia
 - demonstracja zjawiska współbieżności (drift)
+- analiza przeciążenia
 - implementacja mechanizmu kontroli
 - porównanie przed i po poprawce
 - 2 pytesty
 
+## Teoretyczne omówienie wybranych zagadnień współbierzności
 
+W ramach Etapu 3 zbadano dwa kluczowe zjawiska występujące w systemach rozproszonych i systemach czasu rzeczywistego (Real-Time Systems): **dryft czasowy (drift)** w generowaniu strumieni danych oraz **zatory wydajnościowe (backpressure)** w architekturze zapisu asynchronicznego.
+
+### 1. Dryft czasowy (Time Drift) w strumieniowaniu danych IoT
+W systemach monitorowania zdrowia pacjentów (gdzie 20 urządzeń wysyła dane co 1 sekundę) kluczowa jest powtarzalność i miarowość transmisji. W teorii współbieżności standardowa pętla oparta na zwykłym uśpieniu wątku (np. `time.sleep(1.0)`) generuje zjawisko **dryftu czasowego**.
+
+* **Podłoże teoretyczne:** Instrukcja uśpienia blokuje wątek na określony czas, ale sam proces wybudzenia wątku, obsługa logiki, walidacja danych oraz narzut wykonania kodu przez procesor (CPU execution time) trwają ułamek milisekundy. Wykonując pętlę `while True: sleep(1); execute_logic()`, realny czas między kolejnymi pakietami wynosi zawsze $1.0s + \Delta t$. W skali minut lub godzin te ułamki sekund kumulują się, powodując rozjeżdżanie się harmonogramu i opóźnianie transmisji (wątki "dryfują" w czasie).
+* **Kontekst systemu:** Nasz generator zapobiega temu zjawisku poprzez **kontrolę dryftu** (obliczanie dynamicznego czasu uśpienia). Zamiast sztywnego `sleep(1)`, system sprawdza rzeczywisty czas, jaki upłynął od startu, i skraca następny sen o zaistniałe opóźnienie $\Delta t$. Dzięki temu 20 pacjentów wysyła dane idealnie w punkt, co sekundę, generując dla serwera Flask idealnie miarowe obciążenie (tzw. ruch kaskadowy), bez zniekształceń harmonicznych.
+
+### 2. Obciążenie bazy danych i zjawisko Backpressure
+Gdy serwer medyczny zostaje zasypany falą 20 zapytań na sekundę, wątek główny Flaska nie powinien być blokowany powolnymi operacjami I/O (zapisem przez internet do Supabase), ponieważ przestałby natychmiastowo odpowiadać na nowe pakiety. Rozwiązaniem jest asynchroniczność (decoupling) i oddelegowanie zapisu do wątków tła. W sytuacji awarii lub przeciążenia bazy (u nas symulowane opóźnienie 1.5s), ujawnia się problem zarządzania wydajnością:
+
+* **Brak kontroli (Scenariusz Awaryjny):** Serwer bez ograniczeń (`max_workers=1000`) tworzy wątki na żądanie. Nowe wątki powstają szybciej, niż baza danych jest w stanie je zamykać. Prowadzi to do nasycenia zasobów (Resource Exhaustion) i załamania warstwy sieciowej systemu operacyjnego (`WinError 10035`), powodując bezpowrotną utratę danych pacjentów.
+* **Wprowadzenie Puli i Bufora (Scenariusz Bezpieczny):** Ograniczenie współbieżności do `max_workers=5` tworzy tzw. **wąskie gardło (bottleneck)**. W tym momencie system zaczyna natywnie obsługiwać mechanizm **Backpressure (ciśnienia wstecznego)**. Zamiast bezmyślnie obciążać system operacyjny i chmurę, serwer stawia barierę, a nadmiarowe pakiety medyczne są bezpiecznie kolejkowane w pamięci RAM (`_work_queue`).
+
+Dzięki buforowaniu, w warunkach skrajnego obciążenia bazy danych, system świadomie zamienia ryzyko awarii sieciowej i utraty danych na kontrolowany wzrost opóźnienia przetwarzania (kolejka rosnąca do ponad 2000 zadań). Jest to klasyczny kompromis architektoniczny (trade-off) w systemach rozproszonych: **poświęcenie natychmiastowej aktualności danych na rzecz ich 100% integralności i bezstratności**.
 
 ## 9. Struktura repozytorium
 

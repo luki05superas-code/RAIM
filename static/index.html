@@ -369,7 +369,7 @@
         if (delay > 1.0 || jitter > 0.8 || value < 45 || value > 130) {
             return { label: "ALARM", cls: "danger" };
         }
-        if (delay > 0.5 || jitter > 0.3 || value < 55 || value > 110) {
+        if (delay > 0.5 || jitter > 0.3 || value < 55 || value > 100) {
             return { label: "UWAGA", cls: "warn" };
         }
         return { label: "Stabilny", cls: "ok" };

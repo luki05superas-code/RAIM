@@ -71,10 +71,10 @@ def get_patients():
 
 
 def generate_heart_rate():
-    tentno= random.randint(60, 80)
+    tentno= random.randint(60, 100)
     while True:
         tentno += random.choice([-1, 0, 1])
-        tentno = max(50, min(tentno, 100))
+        tentno = max(35, min(tentno, 150))
         yield tentno
 
 
