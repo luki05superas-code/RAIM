@@ -215,18 +215,22 @@ W celu zweryfikowania poprawności działania punktu końcowego (endpointu) API,
 ## 9. Struktura repozytorium
 
 ```text
-RAIM-MAIN/
+RAIM/
+├── .pytest_cache/
 ├── assets/
 │   ├── jitter_delay.png
 │   ├── jitter_loss.png
 │   ├── kib.png
 │   ├── latency_burst.png
 │   ├── latency_order.png
-│   └── pg_logo.png
+│   ├── pg_logo.png
+│   └── Widok_aplikacji.png
 ├── data/
 │   └── patient_001.csv
 ├── static/
-│   └── indeks.html
+│   └── index.html
+├── venv/
+├── .env
 ├── .gitignore
 ├── gen_burst.py
 ├── gen_delay.py
@@ -237,5 +241,6 @@ RAIM-MAIN/
 ├── README.md
 ├── requirements.txt
 ├── server.py
-└── wykres.py
+├── test_system.py
+└── wykresy.py
 ```
