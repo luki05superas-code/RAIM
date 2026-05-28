@@ -504,21 +504,54 @@
     function updateSystemStatus(metrics) {
         const avgDelay = Number(metrics.avg_delay || 0);
         const maxDelay = Number(metrics.max_delay || 0);
+        const bufferSize = Number(metrics.buffer_size || 0);
         const status = document.getElementById("systemStatus");
-
+        
         if (!metrics.count) {
-            status.textContent = "Brak danych";
-            status.style.color = "#66788a";
-        } else if (avgDelay > 0.7 || maxDelay > 1.2) {
-            status.textContent = "Przeciążenie";
-            status.style.color = "#dc2626";
-        } else if (avgDelay > 0.35 || maxDelay > 0.8) {
-            status.textContent = "Podwyższone opóźnienia";
-            status.style.color = "#f59e0b";
-        } else {
-            status.textContent = "Stabilny";
-            status.style.color = "#16a34a";
+        status.textContent = "Brak danych";
+        status.style.color = "#66788a";
+        return; 
         }
+        let statusMessages = [];
+        let isCritical = false;
+        let isWarning = false;
+        
+        // 1. DIAGNOSTYKA BAZY DANYCH (WĄTKÓW)
+        if (bufferSize > 30) {
+            statusMessages.push(`Przeciążenie bazy (kolejka: ${bufferSize})`);
+            isCritical = true;
+        } else if (bufferSize > 16) {
+            statusMessages.push(`Podwyższone opóźnienia bazy (kolejka: ${bufferSize})`);
+            isWarning = true;
+        }
+
+        // 2. DIAGNOSTYKA SIECI (OPÓŹNIEŃ TRANSMISJI)
+        if (avgDelay > 0.7 || maxDelay > 1.2) {
+            statusMessages.push("Przeciążenie sieci");
+            isCritical = true;
+        } else if (avgDelay > 0.35 || maxDelay > 0.8) {
+            statusMessages.push("Podwyższone opóźnienia sieci");
+            isWarning = true;
+        }
+
+        // 3. SKŁADANIE FINALNEGO STATUSU I USTALANIE KOLORU
+        if (statusMessages.length > 0) {
+            // Łączymy komunikaty znakiem " | " (np. "Przeciążenie bazy (kolejka: 35) | Przeciążenie sieci")
+            status.textContent = statusMessages.join(" | ");
+            
+            // Kolor czerwony ma pierwszeństwo przed pomarańczowym
+            if (isCritical) {
+                status.style.color = "#dc2626"; // Czerwony (Przeciążenie)
+            } else {
+                status.style.color = "#f59e0b"; // Pomarańczowy (Ostrzeżenie)
+            }
+        } else {
+            // Jeśli brak jakichkolwiek problemów sieciowych i bazodanowych
+            status.textContent = "Stabilny";
+            status.style.color = "#16a34a"; // Zielony
+        }
+
+
     }
 
     async function updateDashboard() {

@@ -172,7 +172,7 @@ System poprawnie rejestrował zaburzenia oraz umożliwiał analizę wpływu prob
  - python gen_loss.py
 
  ---
-## 4. Etap 3 – współbieżność i analiza błędów
+## 8. Etap 3 – współbieżność i analiza błędów
 
 Celem trzeciego etapu było wprowadzenie do systemy współbieżności
 
@@ -186,7 +186,7 @@ Celem trzeciego etapu było wprowadzenie do systemy współbieżności
 
 
 
-## 8. Struktura repozytorium
+## 9. Struktura repozytorium
 
 ```text
 RAIM-MAIN/
