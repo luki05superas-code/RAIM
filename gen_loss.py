@@ -13,10 +13,10 @@ def load_data():
     df = pd.read_csv(FILE_PATH)
     return df.to_dict(orient="records")
 
-# modyfikacja danych (żeby nie były tylko odtwarzane)
+# modyfikacja danych (żeby nie były tylko odtwarzane), zaokrąglenie do 0 miejsc po przecinku
 def modify_value(original_value):
     noise = random.uniform(-1.5, 1.5)
-    return round(original_value + noise, 2)
+    return round(original_value + noise, 0)
 
 # wysyłanie danych
 def stream_data():

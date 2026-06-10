@@ -25,7 +25,7 @@ def load_data():
 # dzięki temu dane nie są identyczne przy każdym odtworzeniu
 def modify_value(original_value):
     noise = random.uniform(-1.5, 1.5)
-    return round(original_value + noise, 2)
+    return round(original_value + noise, 0)
 
 
 # główna funkcja wysyłająca dane
