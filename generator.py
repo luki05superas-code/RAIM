@@ -11,18 +11,18 @@ from supabase import create_client
 API_URL = "http://127.0.0.1:5000/api/measurements"
 
 load_dotenv()
-
+# konfiguracja Supabase
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-
+# pobranie listy pacjentów z bazy danych
 def get_patients():
     result = supabase.table("patients").select("patient_id").execute()
     return result.data
 
-
+# generator danych symulujący pomiary tętna pacjenta
 def generate_heart_rate():
     tentno= random.randint(60, 100)
     while True:
@@ -30,7 +30,7 @@ def generate_heart_rate():
         tentno = max(35, min(tentno, 150))
         yield tentno
 
-
+# funkcja do strumieniowania danych do API
 async def stream_data(session, patient_id):
     hr_generator = generate_heart_rate()
    
@@ -72,6 +72,7 @@ async def stream_data(session, patient_id):
 
         await asyncio.sleep(sleep_time)
 
+# Główna funkcja uruchamiająca strumieniowanie danych dla wszystkich pacjentów
 async def main():
   patients  = get_patients()
   print(f"Pobrano pacjentów z Supabase: {len(patients)}")

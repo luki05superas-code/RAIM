@@ -252,7 +252,7 @@ Na podstawie eksperymentów wydajnościowych (symulacja zatoru bazy danych przez
 #### Scenariusz B: Kontrola przy użyciu puli wątków (`LIMIT_THREADS = True`)
 * **Dostępność (Uptime):** **SPEŁNIONO**. Serwer działał w pełni stabilnie pod stałym nadzorem puli wątków roboczych.
 * **Bezstratność danych:** **SUKCES / SPEŁNIONO SLA.** Przeniesienie obciążenia do bufora pamięci RAM (`_work_queue`) całkowicie wyeliminowało błędy `WinError 10035`. Żaden pakiet nie został odrzucony – zapewniono 100% integralności danych.
-* **Opóźnienie (Latency):** **NARUSZENIE SLA (SLA Violation).** Ponieważ wydajność bezpiecznej puli wątków (ok. 3.3 zapisu/s) była niższa niż napływ danych z generatora (20 pomiarów/s), kolejka urosła liniowo do ponad 2000 zadań. Skutkowało to opóźnieniem zapisu sięgającym kilkunastu sekund. Dane na wykresach historycznych pojawiały się z widocznym zatoru opóźnieniem.
+* **Opóźnienie (Latency):** **NARUSZENIE SLA (SLA Violation).** Ponieważ wydajność bezpiecznej puli wątków (ok. 3.3 zapisu/s) była niższa niż napływ danych z generatora (20 pomiarów/s), kolejka urosła liniowo do ponad 2000 zadań. Skutkowało to opóźnieniem zapisu sięgającym kilkunastu sekund.
 
 ### 4. Podsumowanie i wnioski architektoniczne (Trade-off)
 

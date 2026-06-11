@@ -35,6 +35,8 @@ def stream_data():
         }
         buffer.append(payload)
         rand = random.random()
+
+        # Symulacja braku możliwości wysłania danych (np. z powodu problemów z siecią) i buforowanie ich do późniejszego wysłania
         if rand < 0.2:
             print(f"nie można teraz wysłać danych, buforowanie")
             for _ in range(random.randint(3, 6)):

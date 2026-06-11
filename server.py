@@ -13,6 +13,7 @@ LIMIT_THREADS = True #ograniczenie liczby wątków
 safe_pool = ThreadPoolExecutor(max_workers=5) #bezpieczna pula wątków
 unsafe_pool = ThreadPoolExecutor(max_workers=1000) #niebezpieczna pula wątków
 
+# metryki bazy danych
 db_metrics = {
     "queue_size": 0,
     "db_write_time": 0
@@ -20,6 +21,7 @@ db_metrics = {
 
 load_dotenv()
 
+# konfiguracja Supabase
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
@@ -107,7 +109,7 @@ def receive_measurement():
     
     #Logowanie pomiarów w konsoli
     print(f"[{patient_id}] Tętno: {item['value']} | Opóźnienie: {current_delay}s | Jitter: {jitter}s")
-    #Zapis pomiarów do pliku CSV
+    #Zapis pomiarów do pliku CSV, używane w etapach 1-2
     # save_to_report(current_delay, jitter)
 
 
@@ -153,6 +155,7 @@ def get_metrics():
         "db_speed_ms": db_metrics["db_write_time"]
     })
 
+# funkcja do zapisu metryk do pliku CSV, używana w etapach 1-2
 #def save_to_report(lat, jit):
 #    with open('measurement_report.csv', mode='a', newline='') as file:
  #       writer = csv.writer(file)
@@ -163,6 +166,8 @@ def get_metrics():
 
 # start serwera
 if __name__ == "__main__":
+
+    # przed uruchomieniem serwera tworzy/wyczyszcza plik CSV do raportowania metryk, używane w etapach 1-2
     #with open('measurement_report.csv', mode='w', newline='') as file:
      #   writer = csv.writer(file)
       #  writer.writerow(["Timestamp", "Latency", "Jitter"])
