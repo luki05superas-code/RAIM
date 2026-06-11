@@ -33,8 +33,10 @@
 System został podzielony na trzy główne moduły:
 
 ### 1. Generator danych
-Generator odczytuje dane z pliku i wysyła je do serwera z częstotliwością 1 Hz.  
+W etapach 1-2: Generator odczytuje dane z pliku i wysyła je do serwera z częstotliwością 1 Hz.  
 Dane nie są wyłącznie odtwarzane – każda próbka może zostać lekko zmodyfikowana, np. przez dodanie zakłócenia.
+W etapie 3: Dane są generowane dynamicznie, z częstotliwością 1 Hz, za pomocą funkcji, która wykorzystuje mechanizm błądzenia losowego w celu realistycznego odwzorowania pracy serca.
+
 
 ### 2. Backend API
 Backend odbiera próbki danych przez interfejs API, zapisuje je w pamięci oraz oblicza podstawowe parametry, np. opóźnienie transmisji.
@@ -42,8 +44,11 @@ Backend odbiera próbki danych przez interfejs API, zapisuje je w pamięci oraz 
 ### 3. Frontend
 Frontend pobiera dane z API i przedstawia je na wykresie w czasie rzeczywistym.
 
-### Schemat działania
+### Schemat działania etapy 1-2
 `plik danych -> generator -> API -> backend -> frontend`
+
+### Schemat działania etap 3
+`funkcja generatora -> generator -> API -> backend -> frontend & baza danych`
 
 ---
 
@@ -140,7 +145,7 @@ W systemie zaimplementowano mechanizmy monitorujące parametry transmisji danych
 
 Pomiary:
 - wyświetlane są w terminalu,
-- zapisywane są do pliku `measurement_report.csv`.
+- były zapisywane są do pliku `measurement_report.csv` (aktualnie są wyświetlane bezpośrednio na wykresie oraz zapisywane do bazy danych).
 
 Backend oblicza opóźnienie transmisji na podstawie różnicy pomiędzy czasem wysłania danych przez generator a czasem odebrania danych przez serwer.
 
@@ -220,12 +225,20 @@ W systemach monitorowania parametrów życiowych pacjentów (Critical Care IoT P
 
 W celu dokonania oceny zdefiniowano formalne wskaźniki **SLI (Service Level Indicators)** oraz odpowiadające im cele **SLO (Service Level Objectives)**, które system powinien spełniać w warunkach szpitalnych.
 
-### 2. Definicja parametrów jakościowych (Kryteria SLO)
+### 2. Definicja parametrów jakościowych
 
-Aby system mógł zostać dopuszczony do użytku medycznego, musi spełniać trzy rygorystyczne warunki:
-1. **Dostępność systemu (Uptime SLO):** Minimum **99.9%**. Główny serwer aplikacyjny Flask musi bez przerwy przetwarzać żądania sieciowe i pozostawać responsywny dla urządzeń IoT oraz stacji lekarskiej.
-2. **Bezstratność transmisji (Data Loss SLO):**  Dokładnie **100% dostarczonych pakietów (0% utraty danych)**. Każdy pojedynczy pomiar tętna (BPM) pacjenta musi zostać trwale zapisany w historii bazy danych.
-3. **Opóźnienie przetwrzania (Latency):** **95% pomiarów** musi trafić z urządzenia do bazy danych w czasie **t < 1.0 sekundy** (czas mierzony od wygenerowania do trwałego zapisu).
+Aby system mógł zostać dopuszczony do użytku w warunkach szpitalnych, zdefiniowano konkretne wskaźniki jakościowe oraz przypisane do nich docelowe wartości progowe:
+* **Dostępność API (Uptime):**
+  * **Wskaźnik (SLI):** Procentowy stosunek czasu poprawnego działania serwera Flask (odpowiedzi HTTP) do całkowitego czasu testu.
+  * **Cel (SLO):** Minimum **99.9%** (Główny serwer musi bez przerwy przetwarzać żądania i pozostać responsywny).
+
+* **Bezstratność transmisji (Data Loss):**
+  * **Wskaźnik (SLI):** Procentowy stosunek liczby pomiarów trwale zapisanych w bazie danych Supabase do liczby pakietów wysłanych przez generator.
+  * **Cel (SLO):** Dokładnie **100% dostarczonych pakietów** (0% dopuszczalnej utraty danych kardiologicznych).
+
+* **Opóźnienie przetwarzania (Latency):**
+  * **Wskaźnik (SLI):** Czas, jaki upływa od momentu wygenerowania tętna przez czujnik IoT do momentu jego rejestracji w chmurze.
+  * **Cel (SLO):** Opóźnienie **t < 1.0 sekundy** dla minimum 95% wszystkich przesłanych próbek.
 
 ### 3. Ocena spełnienia SLA w scenariuszach przeciążeniowych
 
