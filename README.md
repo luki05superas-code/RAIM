@@ -223,7 +223,29 @@ W celu dokonania oceny zdefiniowano formalne wskaźniki **SLI (Service Level Ind
 ### 2. Definicja parametrów jakościowych (Kryteria SLO)
 
 Aby system mógł zostać dopuszczony do użytku medycznego, musi spełniać trzy rygorystyczne warunki:
-1. **Dostępność systemun 
+1. **Dostępność systemu (Uptime SLO):** Minimum **99.9%**. Główny serwer aplikacyjny Flask musi bez przerwy przetwarzać żądania sieciowe i pozostawać responsywny dla urządzeń IoT oraz stacji lekarskiej.
+2. **Bezstratność transmisji (Data Loss SLO):**  Dokładnie **100% dostarczonych pakietów (0% utraty danych)**. Każdy pojedynczy pomiar tętna (BPM) pacjenta musi zostać trwale zapisany w historii bazy danych.
+3. **Opóźnienie przetwrzania (Latency):** **95% pomiarów** musi trafić z urządzenia do bazy danych w czasie **t < 1.0 sekundy** (czas mierzony od wygenerowania do trwałego zapisu).
+
+### 3. Ocena spełnienia SLA w scenariuszach przeciążeniowych
+
+Na podstawie eksperymentów wydajnościowych (symulacja zatoru bazy danych przez 1.5s przy napływie 20 pomiarów/s) dokonano ewaluacji systemowej:
+
+#### Scenariusz A: Brak kontroli współbieżności (`LIMIT_THREADS = False`)
+* **Dostępność (Uptime):** **SPEŁNIONO**. Serwer Flask nie uległ awarii (crash) i stale zwracał statusy HTTP 201.
+* **Opóźnienie (Latency):** **SPEŁNIONO**. Przepuszczone pakiety trafiały do bazy bez dodatkowego kolejkowania na backendzie.
+* **Bezstratność danych:** **DRASTYCZNE NARUSZENIE SLA (SLA Violation).** Przeciążenie gniazd sieciowych systemu operacyjnego wywołało błędy `WinError 10035`. Pakiety były masowo odrzucane w bloku wyjątków. Lekarz tracił dostęp do historycznych danych kardiologicznych pacjenta. **Wniosek: Tryb niedopuszczalny w medycynie.**
+
+#### Scenariusz B: Kontrola przy użyciu puli wątków (`LIMIT_THREADS = True`)
+* **Dostępność (Uptime):** **SPEŁNIONO**. Serwer działał w pełni stabilnie pod stałym nadzorem puli wątków roboczych.
+* **Bezstratność danych:** **SUKCES / SPEŁNIONO SLA.** Przeniesienie obciążenia do bufora pamięci RAM (`_work_queue`) całkowicie wyeliminowało błędy `WinError 10035`. Żaden pakiet nie został odrzucony – zapewniono 100% integralności danych.
+* **Opóźnienie (Latency):** **NARUSZENIE SLA (SLA Violation).** Ponieważ wydajność bezpiecznej puli wątków (ok. 3.3 zapisu/s) była niższa niż napływ danych z generatora (20 pomiarów/s), kolejka urosła liniowo do ponad 2000 zadań. Skutkowało to opóźnieniem zapisu sięgającym kilkunastu sekund. Dane na wykresach historycznych pojawiały się z widocznym zatoru opóźnieniem.
+
+### 4. Podsumowanie i wnioski architektoniczne (Trade-off)
+
+Badania nad SLA ujawniły klasyczny kompromis inżynierski (*architectural trade-off*) w systemach rozproszonych czasu rzeczywistego:
+* Próba wymuszenia niskich opóźnień (Scenariusz A) bez kontroli zasobów kończy się awarią systemu operacyjnego i utratą danych.
+* Wdrożenie mechanizmu kontroli współbieżności i Backpressure (Scenariusz B) ratuje krytyczny parametr bezstratności, ale degraduje parametr opóźnienia.
 
 ## 10. Struktura repozytorium
 
