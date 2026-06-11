@@ -260,6 +260,22 @@ Badania nad SLA ujawniły klasyczny kompromis inżynierski (*architectural trade
 * Próba wymuszenia niskich opóźnień (Scenariusz A) bez kontroli zasobów kończy się awarią systemu operacyjnego i utratą danych.
 * Wdrożenie mechanizmu kontroli współbieżności i Backpressure (Scenariusz B) ratuje krytyczny parametr bezstratności, ale degraduje parametr opóźnienia.
 
+### Świadomość kompromisów implementacyjnych w pracy inżyniera
+
+Świadomość kompromisów architektonicznych pojawia się w momencie, gdy inżynier przestaje oceniać kod wyłącznie przez pryzmat kryterium „działa / nie działa”, a zaczyna analizować system jako nierozerwalną całość, gdzie poprawa jednego parametru degraduje inny.
+
+W niniejszym projekcie ta świadomość została udowodniona empirycznie w Etapie 3:
+* **Wydajność a Bezpieczeństwo (Zasobów):** Pozostawienie serwera bez limitu wątków (`LIMIT_THREADS = False`) dawało pozorną, wysoką wydajność, ale zagrażało bezpieczeństwu całego systemu (przepełnienie gniazd sieciowych i błąd `WinError 10035`). Świadoma decyzja o wprowadzeniu puli wątków i kolejki to przedłożenie bezpieczeństwa systemu operacyjnego nad jego bezwarunkową przepustowość.
+* **Opóźnienie a Spójność Danych (Consistency vs Latency):** Zastosowanie bufora w pamięci RAM uratowało spójność danych (100% pakietów trafiło do bazy), ale stało się to kosztem opóźnienia, które wzrosło do kilkunastu sekund. Jest to bezpośrednie odzwierciedlenie systemowych praw informatyki (zbliżone do założeń twierdzenia CAP).
+
+#### Jakie kompromisy są dopuszczalne?
+Dopuszczalność kompromisu zależy **wyłącznie od domeny biznesowej (kontekstu systemu)**. W systemach rozrywkowych lub e-commerce dopuszczalna jest chwilowa utrata spójności danych na rzecz niskich opóźnień (np. użytkownik zobaczy polubienie postu sekundę później). 
+
+W **systemach medycznych (Critical Care)** kryteria dopuszczalności są rygorystyczne:
+1. **Niedopuszczalna jest utrata krytycznych danych:** Każdy pomiar kardiologiczny tworzy historię choroby, na podstawie której lekarz podejmuje decyzje o życiu pacjenta. Dlatego kompromis ze Scenariusza A (gubienie pakietów w celu utrzymania szybkości) jest całkowicie niedopuszczalny.
+2. **Dopuszczalne jest kontrolowane opóźnienie w trybie awaryjnym:** W sytuacji zatoru bazy danych, opóźnienie wyświetlenia wykresu na stacji lekarskiej o kilka sekund jest kompromisem bolesnym, ale akceptowalnym – pod warunkiem, że żadne dane nie zginą i system docelowo odzyska synchronizację w czasie rzeczywistym.
+
+
 ## 10. Struktura repozytorium
 
 ```text
