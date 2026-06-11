@@ -212,7 +212,20 @@ W celu zweryfikowania poprawności działania punktu końcowego (endpointu) API,
 
 **Wniosek:** Testy potwierdzają, że endpoint Flaska działa stabilnie – bezbłędnie przyjmuje poprawne pomiary medyczne i natychmiast odrzuca pakiety uszkodzone, chroniąc system przed przetwarzaniem nieprawidłowych danych.
 
-## 9. Struktura repozytorium
+## 9. Etap 4 - Analiza SLA (Service Level Agreement)
+
+### 1. Wprowadzenie i cel analizy
+
+W systemach monitorowania parametrów życiowych pacjentów (Critical Care IoT Platforms), stabilność i niezawodność systemu przekładają się bezpośrednio na bezpieczeństwo zdrowia i życia. Celem Etapu 4 było przeprowadzenie analizy SLA (umowy o gwarantowanym poziomie świadczenia usług) na podstawie krytycznych testów przeciążeniowych zrealizowanych w Etapie 3.
+
+W celu dokonania oceny zdefiniowano formalne wskaźniki **SLI (Service Level Indicators)** oraz odpowiadające im cele **SLO (Service Level Objectives)**, które system powinien spełniać w warunkach szpitalnych.
+
+### 2. Definicja parametrów jakościowych (Kryteria SLO)
+
+Aby system mógł zostać dopuszczony do użytku medycznego, musi spełniać trzy rygorystyczne warunki:
+1. **Dostępność systemun 
+
+## 10. Struktura repozytorium
 
 ```text
 RAIM/

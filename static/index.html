@@ -517,10 +517,10 @@
         let isWarning = false;
         
         // 1. DIAGNOSTYKA BAZY DANYCH (WĄTKÓW)
-        if (bufferSize > 30) {
+        if (bufferSize > 35) {
             statusMessages.push(`Przeciążenie bazy (kolejka: ${bufferSize})`);
             isCritical = true;
-        } else if (bufferSize > 16) {
+        } else if (bufferSize > 21) {
             statusMessages.push(`Podwyższone opóźnienia bazy (kolejka: ${bufferSize})`);
             isWarning = true;
         }
